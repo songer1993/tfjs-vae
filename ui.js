@@ -4,7 +4,6 @@ const trainingElement = document.getElementById('training');
 const testingElement = document.getElementById('testing');
 const lossCanvasElement = document.getElementById('lossCanvas');
 
-
 function getEpochs() {
   return Number.parseInt(document.getElementById('epochs').value);
 }
@@ -41,13 +40,20 @@ function plotLosses(loss) {
     var data = [trace];
     var layout = {
       title: "Training Loss",
-      xaxis: {title: "batch"},
-      yaxis: {title: "loss"}
+      xaxis: {
+        title: "batch"
+      },
+      yaxis: {
+        title: "loss"
+      }
     };
     Plotly.newPlot(lossCanvasElement, data, layout);
-  }
-  else {
-    Plotly.extendTraces(lossCanvasElement, {y: [[loss]]}, [0])
+  } else {
+    Plotly.extendTraces(lossCanvasElement, {
+      y: [
+        [loss]
+      ]
+    }, [0])
   }
 }
 
@@ -77,7 +83,11 @@ async function showTestResults(zs, outputs) {
   testingElement.style.display = "block";
   const testExamples = zs.shape[0];
   for (let i = 0; i < testExamples; i++) {
-    const image = outputs.slice([i, 0], [1, outputs.shape[1]]);
+    const image = outputs.slice([
+      i, 0
+    ], [
+      1, outputs.shape[1]
+    ]);
 
     const div = document.createElement('div');
     div.className = 'result-container';

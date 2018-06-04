@@ -25,10 +25,6 @@ class sampleLayer extends tf.layers.Layer {
   }
 }
 
-const SPACE = `&nbsp;`;
-const TAB = `&emsp;`;
-const LF = `<br>`;
-
 async function train(config) {
   // # network parameters
   const input_shape = config.input_shape;
@@ -49,18 +45,6 @@ async function train(config) {
   // # use reparameterization trick to push the sampling out as input
   // # note that "output_shape" isn't necessary with the TensorFlow backend
   const z = new sampleLayer().apply([z_mean, z_log_var]);
-
-  // # build decoder model
-  const decoder_inputs = tf.input({shape: [latent_dim]});
-  const x_decoder = tf.layers.dense({units: intermediate_dim, activation: 'relu'}).apply(decoder_inputs);
-  const decoder_outputs = tf.layers.dense({units: original_dim, activation: 'sigmoid'}).apply(x_decoder);
-
-  //  # instantiate VAE model
-  // const model = tf.model({
-  //   inputs: inputs,
-  //   outputs: [z_mean, z_log_var, decoder_outputs],
-  //   name: 'vae_mlp'
-  // });
   const encoder = tf.model({
     inputs: encoder_inputs,
     outputs: [
@@ -69,6 +53,10 @@ async function train(config) {
     name: "encoder"
   })
 
+  // # build decoder model
+  const decoder_inputs = tf.input({shape: [latent_dim]});
+  const x_decoder = tf.layers.dense({units: intermediate_dim, activation: 'relu'}).apply(decoder_inputs);
+  const decoder_outputs = tf.layers.dense({units: original_dim, activation: 'sigmoid'}).apply(x_decoder);
   const decoder = tf.model({inputs: decoder_inputs, outputs: decoder_outputs, name: "decoder"})
 
   const vae = (inputs) => {
