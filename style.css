@@ -1,0 +1,44 @@
+body {
+  padding: 15px;
+}
+
+#retrain-div {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+#test-div {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.result-canvas {
+  width: 100px;
+}
+
+.latent-label {
+  font-size: 10px;
+  line-height: 25px;
+  width: 100px;
+  background-color: #00cf00;
+}
+
+.result-container {
+  display: inline-block;
+  width: 100px;
+  margin: 10px;
+}
+
+.canvases {
+  display: inline-block;
+  width: 460px;
+}
+
+/* #testing {
+  display: none;
+} */
+
+#logging-message {
+  color: white;
+  background-color: black;
+}

@@ -1,0 +1,53 @@
+<html>
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.2"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="./style.css" />
+</head>
+
+<body>
+
+  <h1>TensorFlow.js: Variational Autoencoder</h1>
+
+  <hr />
+
+  <div id="training">
+    <h3>Training</h3>
+    <div id="retrain-div">
+        <button class="btn" id="retrain"><span>Train</span></button>
+        <input class="input" id="epochs" value="50" style="width:3em"></input>
+        <span>epochs</span>
+        <progress id="trainProg" value="0" max="100" style="width:35%"></progress>
+        <span id="status">Not Trained.</span>
+    </div>
+    <div id="lossCanvas"></div>
+  </div>
+
+  <hr />
+
+  <div id="testing">
+    <h3>Testing</h3>
+    <div id="test-div">
+        <button class="btn" id="test"><span>Test</span></button>
+        <input class="input" id="test-sample-size" value="10" style="width:3em"></input>
+        <span>random samples</span>
+    </div>
+  </div>
+
+  <hr />
+
+  <div id="logging">
+    <h3>Log</h3>
+    <div id="logging-message"></div>
+  </div>
+
+
+  <script src="./util.js"></script>
+  <script src="./ui.js"></script>
+  <script src="./datasets.js"></script>
+  <script src='./index.js'></script>
+</body>
+
+</html>
