@@ -34,13 +34,41 @@ async function train(config) {
   const num_batch = config.num_batch;
   const latent_dim = config.latent_dim;
   const epochs = config.epochs;
+  const test_batch_size = 1000;
+
+  // // # VAE model = encoder + decoder
+  // // # build encoder model
+  // const encoder_inputs = tf.input({shape: [original_dim]});
+  // const x_encoder = tf.layers.dense({units: intermediate_dim, activation: 'relu'}).apply(encoder_inputs);
+  // const z_mean = tf.layers.dense({units: latent_dim, name: 'z_mean'}).apply(x_encoder);
+  // const z_log_var = tf.layers.dense({units: latent_dim, name: 'z_log_var'}).apply(x_encoder);
+  //
+  // // # use reparameterization trick to push the sampling out as input
+  // // # note that "output_shape" isn't necessary with the TensorFlow backend
+  // const z = new sampleLayer().apply([z_mean, z_log_var]);
+  // const encoder = tf.model({
+  //   inputs: encoder_inputs,
+  //   outputs: [
+  //     z_mean, z_log_var, z
+  //   ],
+  //   name: "encoder"
+  // })
+  //
+  // // # build decoder model
+  // const decoder_inputs = tf.input({shape: [latent_dim]});
+  // const x_decoder = tf.layers.dense({units: intermediate_dim, activation: 'relu'}).apply(decoder_inputs);
+  // const decoder_outputs = tf.layers.dense({units: original_dim, activation: 'sigmoid'}).apply(x_decoder);
+  // const decoder = tf.model({inputs: decoder_inputs, outputs: decoder_outputs, name: "decoder"})
 
   // # VAE model = encoder + decoder
   // # build encoder model
   const encoder_inputs = tf.input({shape: [original_dim]});
-  const x_encoder = tf.layers.dense({units: intermediate_dim, activation: 'relu'}).apply(encoder_inputs);
-  const z_mean = tf.layers.dense({units: latent_dim, name: 'z_mean'}).apply(x_encoder);
-  const z_log_var = tf.layers.dense({units: latent_dim, name: 'z_log_var'}).apply(x_encoder);
+  const x1_l = tf.layers.dense({units: intermediate_dim, kernelInitializer: 'glorotUniform'}).apply(encoder_inputs);
+  const x1_n = tf.layers.batchNormalization({axis:1}).apply(x1_l);
+  const x1 = tf.layers.elu().apply(x1_n);
+  const z_mean = tf.layers.dense({units: latent_dim, kernelInitializer: 'glorotUniform'}).apply(x1);
+  const z_log_var = tf.layers.dense({units: latent_dim, kernelInitializer: 'glorotUniform'}).apply(x1);
+
 
   // # use reparameterization trick to push the sampling out as input
   // # note that "output_shape" isn't necessary with the TensorFlow backend
@@ -55,8 +83,10 @@ async function train(config) {
 
   // # build decoder model
   const decoder_inputs = tf.input({shape: [latent_dim]});
-  const x_decoder = tf.layers.dense({units: intermediate_dim, activation: 'relu'}).apply(decoder_inputs);
-  const decoder_outputs = tf.layers.dense({units: original_dim, activation: 'sigmoid'}).apply(x_decoder);
+  const x2_l = tf.layers.dense({units: intermediate_dim, kernelInitializer: 'glorotUniform'}).apply(decoder_inputs);
+  const x2_n = tf.layers.batchNormalization({axis: 1}).apply(x2_l);
+  const x2 = tf.layers.elu().apply(x2_n);
+  const decoder_outputs = tf.layers.dense({units: original_dim, activation: 'sigmoid'}).apply(x2);
   const decoder = tf.model({inputs: decoder_inputs, outputs: decoder_outputs, name: "decoder"})
 
   const vae = (inputs) => {
@@ -100,28 +130,34 @@ async function train(config) {
     });
   }
 
+  let batch_index = 0;
   for (let i = 0; i < epochs; i++) {
-    let batch_input;
-    let test_batch_input;
-    let loss;
-    let validation_loss;
-    let test_batch_result;
-    let epoch_loss;
+    let batchInput;
+    let testBatchInput;
+    let trainLoss;
+    let valLoss;
+    let testBatchResult;
+    let epochLoss;
 
     logMessage(`[Epoch ${i + 1}]\n`);
-    epoch_loss = 0;
+    epochLoss = 0;
     for (let j = 0; j < num_batch; j++) {
-      batch_input = data.nextTrainBatch(batch_size).xs.reshape([batch_size, original_dim]);
-      loss = await optimizer.minimize(() => vaeLoss(batch_input, vae(batch_input)), true).data();
-      loss = Number(loss);
-      epoch_loss = epoch_loss + loss;
-      logMessage(`\t[Batch ${j + 1}] Training Loss: ${loss}.\n`);
-      plotLosses(loss);
+      batchInput = data.nextTrainBatch(batch_size).xs.reshape([batch_size, original_dim]);
+      trainLoss = await optimizer.minimize(() => vaeLoss(batchInput, vae(batchInput)), true).data();
+      trainLoss = Number(trainLoss);
+      epochLoss = epochLoss + trainLoss;
+      logMessage(`\t[Batch ${j + 1}] Training Loss: ${trainLoss}.\n`);
+      plotTrainLoss(trainLoss);
       await tf.nextFrame();
     }
-    epoch_loss = epoch_loss / num_batch;
-    logMessage(`\t[Average] Training Loss: ${epoch_loss}.\n`);
+    epochLoss = epochLoss / num_batch;
+    logMessage(`\t[Average] Training Loss: ${epochLoss}.\n`);
     updateProgressBar(i, epochs);
+    testBatchInput = data.nextTrainBatch(test_batch_size).xs.reshape([test_batch_size, original_dim]);
+    testBatchResult = vae(testBatchInput);
+    valLoss = await vaeLoss(testBatchInput, testBatchResult).data();
+    valLoss = Number(valLoss);
+    plotValLoss(valLoss);
     await tf.nextFrame();
   }
 

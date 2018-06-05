@@ -22,7 +22,10 @@
       <progress id="trainProg" value="0" max="100" style="width:35%"></progress>
       <span id="status">Not Trained.</span>
     </div>
-    <div id="lossCanvas"></div>
+    <div id="lossCanvas">
+      <div id="trainLossCanvas" class="canvases"></div>
+      <div id="valLossCanvas" class="canvases"></div>
+    </div>
   </div>
 
   <hr />
@@ -43,10 +46,10 @@
     <div id="logging-message"></div>
   </div>
 
-
+  <script src="./support.js"></script>
   <script src="./util.js"></script>
   <script src="./ui.js"></script>
-  <script src="./datasets.js"></script>
+  <script src="./data.js"></script>
   <script src='./index.js'></script>
 </body>
 

@@ -1,9 +1,3 @@
-const statusElement = document.getElementById('status');
-const loggingElement = document.getElementById('logging-message');
-const trainingElement = document.getElementById('training');
-const testingElement = document.getElementById('testing');
-const lossCanvasElement = document.getElementById('lossCanvas');
-
 function getEpochs() {
   return Number.parseInt(document.getElementById('epochs').value);
 }
@@ -23,33 +17,48 @@ function setTestFunction(test) {
 }
 
 function setStatus(status) {
+  const statusElement = document.getElementById('status');
   statusElement.innerText = status;
 }
 
 function logMessage(message) {
+  const loggingElement = document.getElementById('logging-message');
   loggingElement.innerText += message;
 }
 
-function plotLosses(loss) {
-  if (!lossCanvasElement.hasChildNodes()) {
-    var trace = {
+function plotTrainLoss(loss) {
+  const trainLossCanvasElement = document.getElementById('trainLossCanvas');
+  plotLoss(trainLossCanvasElement, loss, 'blue', 'Train Loss', 'batch', 'loss');
+}
+
+function plotValLoss(loss) {
+  const valLossCanvasElement = document.getElementById('valLossCanvas');
+  plotLoss(valLossCanvasElement, loss, 'red', 'Validation Loss', 'epoch', 'loss');
+}
+
+function plotLoss(plotDiv, loss, color, title, xaxis, yaxis) {
+  if (!plotDiv.hasChildNodes()) {
+    const trace = {
       y: [loss],
       type: "scatter",
-      mode: 'lines'
-    };
-    var data = [trace];
-    var layout = {
-      title: "Training Loss",
-      xaxis: {
-        title: "batch"
-      },
-      yaxis: {
-        title: "loss"
+      mode: "lines",
+      marker: {
+        color: color
       }
     };
-    Plotly.newPlot(lossCanvasElement, data, layout);
+    const data = [trace];
+    const layout = {
+      title: title,
+      xaxis: {
+        title: xaxis
+      },
+      yaxis: {
+        title: yaxis
+      }
+    };
+    Plotly.plot(plotDiv, data, layout);
   } else {
-    Plotly.extendTraces(lossCanvasElement, {
+    Plotly.extendTraces(plotDiv, {
       y: [
         [loss]
       ]
@@ -80,7 +89,7 @@ function draw(image, canvas) {
 }
 
 async function showTestResults(zs, outputs) {
-  testingElement.style.display = "block";
+  const testingElement = document.getElementById('testing');
   const testExamples = zs.shape[0];
   for (let i = 0; i < testExamples; i++) {
     const image = outputs.slice([
