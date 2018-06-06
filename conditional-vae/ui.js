@@ -1,3 +1,9 @@
+function resetNode(target){
+  while (target.firstChild) {
+      target.removeChild(target.firstChild);
+  }
+}
+
 function plotLoss(plotDiv, loss, color, title, xaxis, yaxis) {
   if (!plotDiv.hasChildNodes()) {
     const trace = {
@@ -65,6 +71,10 @@ class UserInterface {
     return Number.parseInt(document.getElementById('test-sample-size').value);
   }
 
+  getLabel() {
+    return Number.parseInt(document.getElementById('label').value);
+  }
+
   setRetrainFunction(retrain) {
     const retrainButton = document.getElementById('retrain');
     retrainButton.addEventListener('click', async () => retrain());
@@ -101,7 +111,8 @@ class UserInterface {
     trainProg.value = (epoch + 1) / epochs * 100;
   }
 
-  async showTestResults(zs, outputs) {
+  async showTestResults(inputs, outputs) {
+    const [zs, label] = inputs;
     const testingElement = document.getElementById('testing');
     const testExamples = zs.shape[0];
     for (let i = 0; i < testExamples; i++) {
@@ -123,12 +134,18 @@ class UserInterface {
       });
       const latent = document.createElement('div');
       latent.className = 'latent-label';
-      latent.innerText = `z: ${z}`;
+      latent.innerText = `${label}, z: ${z}`;
 
       div.appendChild(latent);
       div.appendChild(canvas);
 
       testingElement.appendChild(div);
     }
+  }
+
+  clear(){
+    resetNode(document.getElementById('trainLossCanvas'));
+    resetNode(document.getElementById('valLossCanvas'));
+    resetNode(document.getElementById('logging-message'));    
   }
 }
