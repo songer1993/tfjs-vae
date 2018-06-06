@@ -1,7 +1,3 @@
 # TensorFlow.js: Variational Autoencoder
 
-This is my implementation of the vanilla VAE using TensorFlow.js. Live demo is [here](https://tfjs-vae.surge.sh).
-
-It follows the procedure outlined in the Keras
-[variational autoencoder](https://github.com/keras-team/keras/blob/master/examples/variational_autoencoder.py)
-example.
+This is my implementation of [Conditional VAE](https://arxiv.org/abs/1406.5298) using TensorFlow.js. Live demo is [here](https://tfjs-cvae.surge.sh).
